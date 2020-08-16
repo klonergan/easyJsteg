@@ -1,4 +1,4 @@
-example.jpg
-output.jpg
+*.jpg
+*.mp3
 easyJsteg
 output/*
