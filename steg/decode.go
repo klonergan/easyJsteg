@@ -1,7 +1,6 @@
 package steg
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -9,21 +8,24 @@ import (
 	"lukechampine.com/jsteg"
 )
 
-// Decode a message in an image
-func Decode() {
+// Decode a message in an image and print it to console
+func Decode(filename string) (string, error) {
 	// open a jpeg
-	f, _ := os.Open(os.Args[1])
-
-	hidden, err := jsteg.Reveal(f)
+	f, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("hidden: ", err)
+		return "", err
+	}
+
+	hidden, revealErr := jsteg.Reveal(f)
+	if revealErr != nil {
+		return "", revealErr
 	}
 	str := string(hidden)
 	firstIndex := strings.Index(str, ":")
 	dataLength, err := strconv.ParseUint(str[0:firstIndex], 10, 64)
 	if err != nil {
-		fmt.Println("Error parsing data length")
-		return
+		return "", err
 	}
-	fmt.Println(str[firstIndex+1 : uint64(firstIndex)+dataLength+1])
+	data := str[firstIndex+1 : uint64(firstIndex)+dataLength+1]
+	return data, nil
 }
