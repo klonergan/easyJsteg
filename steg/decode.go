@@ -1,4 +1,4 @@
-package main
+package steg
 
 import (
 	"fmt"
@@ -9,8 +9,8 @@ import (
 	"lukechampine.com/jsteg"
 )
 
-// Decode does shit
-func main() {
+// Decode a message in an image
+func Decode() {
 	// open a jpeg
 	f, _ := os.Open(os.Args[1])
 
@@ -25,5 +25,5 @@ func main() {
 		fmt.Println("Error parsing data length")
 		return
 	}
-	fmt.Println(str[firstIndex+1 : uint64(firstIndex)+dataLength])
+	fmt.Println(str[firstIndex+1 : uint64(firstIndex)+dataLength+1])
 }
