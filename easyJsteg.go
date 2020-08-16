@@ -40,11 +40,10 @@ func main() {
 	}
 	// decode mode
 	if d != "" {
-		data, err := steg.Decode(d)
+		err := steg.Decode(d)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(data)
 	}
 }
