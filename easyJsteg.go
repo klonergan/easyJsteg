@@ -40,7 +40,7 @@ func main() {
 	}
 	// decode mode
 	if d != "" {
-		err := steg.Decode(d)
+		err := steg.Decode(d, "./output")
 		if err != nil {
 			fmt.Println(err)
 			return

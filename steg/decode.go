@@ -10,7 +10,7 @@ import (
 )
 
 // Decode a message in an image and print it to console
-func Decode(filename string) error {
+func Decode(filename string, directory string) error {
 	// open a jpeg
 	f, err := os.Open(filename)
 	if err != nil {
@@ -46,11 +46,12 @@ func Decode(filename string) error {
 		fmt.Println(data)
 		return nil
 	}
-	newf, err := os.Create("./output/" + messageType)
+	os.Mkdir(directory, os.ModePerm)
+	newf, err := os.Create(directory + "/" + messageType)
 	if err != nil {
 		return err
 	}
-	fmt.Println("Decoded file saved in output/" + messageType)
+	fmt.Println("Decoded file saved in " + directory + "/" + messageType)
 	data := []byte(str[secondIndex+1 : uint64(secondIndex)+1+dataLength])
 	_, err = newf.Write(data)
 	if err != nil {
