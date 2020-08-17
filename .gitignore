@@ -1,4 +1,5 @@
 *.jpg
 *.mp3
 easyJsteg
+web/server
 output/*
