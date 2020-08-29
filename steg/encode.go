@@ -1,8 +1,10 @@
 package steg
 
 import (
+	"bytes"
 	"fmt"
 	"image/jpeg"
+	"io"
 	"io/ioutil"
 	"os"
 
@@ -66,4 +68,20 @@ func EncodeFile(inputFilename, outputFilename, messageFilename string) error {
 		return hideErr
 	}
 	return nil
+}
+
+// EncodeFromFile modifies the input file and returns error
+func EncodeFromFile(f io.Reader, filename string, encodedString string) (*bytes.Buffer, error) {
+	out := new(bytes.Buffer)
+	img, err := jpeg.Decode(f)
+	if err != nil {
+		return out, err
+	}
+	encodedStringLen := len(encodedString)
+	data := []byte(fmt.Sprint(encodedStringLen) + ":" + "m/" + encodedString)
+	err = jsteg.Hide(out, img, data, nil)
+	if err != nil {
+		return out, err
+	}
+	return out, nil
 }

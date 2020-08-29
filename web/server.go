@@ -6,11 +6,13 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"../steg"
 )
 
 func testRoute(w http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
-		var buf bytes.Buffer
+		var buf = new(bytes.Buffer)
 		err := req.ParseMultipartForm(1 << 25)
 		if err != nil {
 			w.WriteHeader(400)
@@ -25,10 +27,19 @@ func testRoute(w http.ResponseWriter, req *http.Request) {
 		defer file.Close()
 		name := header.Filename
 		fmt.Println(name)
-		io.Copy(&buf, file)
-		fmt.Println("buf: ", buf.String())
+		io.Copy(buf, file)
+		// fmt.Println("buf: ", buf.String())
 		m := req.FormValue("m")
 		fmt.Println(m)
+		newBuf, err := steg.EncodeFromFile(buf, name, m)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+		fmt.Println("newBuff: ", newBuf.String())
+		w.Header().Set("Content-Type", "image/jpeg")
+		w.WriteHeader(200)
+		w.Write(newBuf.Bytes())
 		// body, err := ioutil.ReadAll(req.Body)
 		// if err != nil {
 		// 	fmt.Println(err)
@@ -36,7 +47,14 @@ func testRoute(w http.ResponseWriter, req *http.Request) {
 		// fmt.Println(string(body))
 	} else {
 		fmt.Fprintf(w, "test route\n")
-		fmt.Println(*req)
+	}
+}
+
+func decodeRoute(w http.ResponseWriter, req *http.Request) {
+	if req.Method == "POST" {
+
+	} else {
+		fmt.Fprintf(w, "decode route\n")
 	}
 }
 
@@ -45,6 +63,7 @@ func main() {
 
 	http.Handle("/", fs)
 	http.HandleFunc("/test", testRoute)
+	http.HandleFunc("/decode", decodeRoute)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
