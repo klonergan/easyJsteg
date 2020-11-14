@@ -10,7 +10,7 @@ import (
 	"../steg"
 )
 
-func testRoute(w http.ResponseWriter, req *http.Request) {
+func hideRoute(w http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
 		var buf = new(bytes.Buffer)
 		err := req.ParseMultipartForm(1 << 25)
@@ -36,7 +36,6 @@ func testRoute(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(500)
 			return
 		}
-		fmt.Println("newBuff: ", newBuf.String())
 		w.Header().Set("Content-Type", "image/jpeg")
 		w.WriteHeader(200)
 		w.Write(newBuf.Bytes())
@@ -50,7 +49,7 @@ func testRoute(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func decodeRoute(w http.ResponseWriter, req *http.Request) {
+func revealRoute(w http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
 
 	} else {
@@ -62,8 +61,8 @@ func main() {
 	fs := http.FileServer(http.Dir("./public"))
 
 	http.Handle("/", fs)
-	http.HandleFunc("/test", testRoute)
-	http.HandleFunc("/decode", decodeRoute)
+	http.HandleFunc("/hide", hideRoute)
+	http.HandleFunc("/reveal", revealRoute)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
