@@ -2,4 +2,5 @@
 *.mp3
 easyJsteg
 web/server
+web/public/uploads
 output/*

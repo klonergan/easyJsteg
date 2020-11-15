@@ -27,9 +27,13 @@ func hideRoute(w http.ResponseWriter, req *http.Request) {
 		}
 		defer imgFile.Close()
 		fileFile, fileHeader, _ := req.FormFile("file")
-		fileName := fileHeader.Filename
+		var fileName string
+		if fileFile != nil {
+			fileName = fileHeader.Filename
+			io.Copy(fileBuf, fileFile)
+			defer fileFile.Close()
+		}
 		io.Copy(imgBuf, imgFile)
-		io.Copy(fileBuf, fileFile)
 		// fmt.Println("buf: ", buf.String())
 		m := req.FormValue("m")
 		fmt.Println(m)
@@ -53,7 +57,39 @@ func hideRoute(w http.ResponseWriter, req *http.Request) {
 
 func revealRoute(w http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
-
+		err := req.ParseMultipartForm(1 << 25)
+		if err != nil {
+			w.WriteHeader(400)
+			return
+		}
+		imgFile, _, err := req.FormFile("img")
+		if err != nil {
+			w.WriteHeader(400)
+			return
+		}
+		defer imgFile.Close()
+		var imgBuf = new(bytes.Buffer)
+		io.Copy(imgBuf, imgFile)
+		message, filename, err := steg.DecodeFromFile(imgBuf, "public/uploads")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("message: " + message)
+		fmt.Println("filename: " + filename)
+		response := "<html><body><h1>Message</h1><div>"
+		response += message
+		response += "</div>"
+		if filename != "" {
+			response += "<div><a href=\""
+			response += "/uploads/"
+			response += filename + "\">"
+			response += "File</a></div>"
+		}
+		response += "</body></html>"
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(200)
+		w.Write([]byte(response))
+		fmt.Println(response)
 	} else {
 		fmt.Fprintf(w, "reveal route\n")
 	}

@@ -2,6 +2,7 @@ package steg
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -58,4 +59,52 @@ func Decode(filename string, directory string) error {
 		return err
 	}
 	return nil
+}
+
+// DecodeFromFile reads an image and returns any messages or files hidden in the image
+func DecodeFromFile(r io.Reader, directory string) (message string, filename string, err error) {
+	hidden, err := jsteg.Reveal(r)
+	if err != nil {
+		return
+	}
+	str := string(hidden)
+	firstIndex := strings.Index(str, ":")
+	dataLength, err := strconv.ParseUint(str[0:firstIndex], 10, 64)
+	if firstIndex == -1 || err != nil {
+		return str, "", nil
+	}
+	secondIndex := strings.Index(str, "/")
+	messageType := str[firstIndex+1 : secondIndex]
+	if messageType == "m" {
+		message = str[secondIndex+1 : uint64(secondIndex)+1+dataLength]
+		return
+	}
+	os.Mkdir(directory, os.ModePerm)
+	newf, err := os.Create(directory + "/" + messageType)
+	if err != nil {
+		return "", "", err
+	}
+	fmt.Println("New file saved in " + directory + "/" + messageType)
+	data := []byte(str[secondIndex+1 : uint64(secondIndex)+1+dataLength])
+	_, err = newf.Write(data)
+	if err != nil {
+		return
+	}
+	filename = messageType
+	str = str[uint64(secondIndex)+1+dataLength:]
+	// the following code block is mostly reused and should probably be moved to a function
+	firstIndex = strings.Index(str, ":")
+	dataLength, err = strconv.ParseUint(str[0:firstIndex], 10, 64)
+	if firstIndex == -1 || err != nil {
+		err = nil
+		return
+	}
+	secondIndex = strings.Index(str, "/")
+	messageType = str[firstIndex+1 : secondIndex]
+	if messageType == "m" {
+		message = str[secondIndex+1 : uint64(secondIndex)+1+dataLength]
+		return
+	}
+	/////// end of reused code block
+	return
 }

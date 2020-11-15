@@ -3,23 +3,37 @@
 
     </head>
     <body>
-        <div>Static HTML</div>
-        <form method="POST" action="/hide" enctype="multipart/form-data">
-            <div>
-                <label for="img">Select jpg to hide information in</label>
-                <input type="file" name="img">
-            </div>
-            <div>
-                <label for="m">message to hide</label>
-                <input type="textarea" name="m">
-            </div>
-            <div>
-                <label for="file">Select file to hide in jpg</label>
-                <input type="file" name="file">
-            </div>
-            <div>
-                <input type="submit">
-            </div>
-        </form>
+        <div>
+            <h1>Hide</h1>
+            <form method="POST" action="/hide" enctype="multipart/form-data">
+                <div>
+                    <label for="img">Select jpg to hide information in</label>
+                    <input type="file" name="img">
+                </div>
+                <div>
+                    <label for="m">message to hide</label>
+                    <input type="textarea" name="m">
+                </div>
+                <div>
+                    <label for="file">Select file to hide in jpg</label>
+                    <input type="file" name="file">
+                </div>
+                <div>
+                    <input type="submit">
+                </div>
+            </form>
+        </div>
+        <div>
+            <h1>Reveal</h1>
+            <form method="POST" action="/reveal" enctype="multipart/form-data">
+                <div>
+                    <label for="img">Select jpg to reveal information from</label>
+                    <input type="file" name="img">
+                </div>
+                <div>
+                    <input type="submit">
+                </div>
+            </form>
+        </div>
     </body>
 </html>
