@@ -12,7 +12,7 @@ import (
 )
 
 // Encode a message in an image
-func Encode(inputFilename, outputFilename, encodedString string) error {
+func Encode(inputFilename, outputFilename, messageString string) error {
 	// open a jpeg
 	f, err := os.Open(inputFilename)
 	if err != nil {
@@ -28,9 +28,9 @@ func Encode(inputFilename, outputFilename, encodedString string) error {
 	if err != nil {
 		return err
 	}
-	encodedStringLen := len(encodedString)
+	messageStringLen := len(messageString)
 	// the hidden data is formated length:type/data. the type is a file name or an m for message
-	data := []byte(fmt.Sprint(encodedStringLen) + ":" + "m/" + encodedString)
+	data := []byte(fmt.Sprint(messageStringLen) + ":" + "m/" + messageString)
 	hideErr := jsteg.Hide(out, img, data, nil)
 	if hideErr != nil {
 		return hideErr
@@ -71,14 +71,23 @@ func EncodeFile(inputFilename, outputFilename, messageFilename string) error {
 }
 
 // EncodeFromFile modifies the input file and returns error
-func EncodeFromFile(f io.Reader, filename string, encodedString string) (*bytes.Buffer, error) {
+func EncodeFromFile(imgFile io.Reader, messageString string, messageFileBytes []byte, messageFileName string) (*bytes.Buffer, error) {
 	out := new(bytes.Buffer)
-	img, err := jpeg.Decode(f)
+	img, err := jpeg.Decode(imgFile)
 	if err != nil {
 		return out, err
 	}
-	encodedStringLen := len(encodedString)
-	data := []byte(fmt.Sprint(encodedStringLen) + ":" + "m/" + encodedString)
+	messageStringLen := len(messageString)
+	var data []byte
+	if messageStringLen > 0 && len(messageFileBytes) == 0 {
+		data = []byte(fmt.Sprint(messageStringLen) + ":" + "m/" + messageString)
+	}
+	if len(messageFileBytes) > 0 && messageStringLen == 0 {
+		data = []byte(fmt.Sprint(len(messageFileBytes)) + ":" + messageFileName + "/" + string(messageFileBytes))
+	}
+	if len(messageFileBytes) > 0 && messageStringLen > 0 {
+		data = []byte(fmt.Sprint(len(messageFileBytes)) + ":" + messageFileName + "/" + string(messageFileBytes) + fmt.Sprint(messageStringLen) + ":" + "m/" + messageString)
+	}
 	err = jsteg.Hide(out, img, data, nil)
 	if err != nil {
 		return out, err
