@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"../steg"
+	"easyJsteg/steg"
 )
 
 func hideRoute(w http.ResponseWriter, req *http.Request) {
